@@ -113,19 +113,27 @@ Once both components are running:
 5. **Web search**: Request current information when needed
 6. **Exit**: Type `exit` or `quit` to end the session
 
-### Example Interaction
+### 📸 Demo Screenshots
 
-```
-[AGENT]: Hello! I'm your personal tutor in Study Mode. I'll guide you step by step to help you understand deeply. What's your learning level and what topic would you like to study?
+Here are real interactions showing the AI tutor in action:
 
-[USER]: I'm in 10th grade and want to learn about photosynthesis
+#### 1. Interactive Learning Session
+![Demo 1 - Learning Session](images/demo-1.png)
+*Socratic teaching in action - guiding through questions rather than direct answers*
 
-[AGENT]: Great! Let's explore photosynthesis together. Before we dive in, what do you already know about how plants get their energy?
+#### 2. Knowledge Base Search
+![Demo 2 - Knowledge Search](images/demo-2.png)
+*Using "answer only from knowledge base" to search uploaded documents*
 
-[USER]: They need sunlight somehow?
+#### 3. Web Search in Action
+![Demo 3 - Web Search](images/demo-3.png)
+*Agent searching the web for current information and real-time data*
 
-[AGENT]: Exactly! Sunlight is key. Now, what do you think plants might need besides sunlight to create their food?
-```
+
+
+
+
+
 
 ### Controlling Information Sources
 
