@@ -1,0 +1,12 @@
+[project]
+name = "agent-core"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.3.2",
+    "openai-agents>=0.2.11",
+    "sounddevice>=0.5.2",
+    "textual>=6.0.0",
+]

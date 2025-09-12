@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.mypy_cache/
+
+# Virtual environments
+.venv
+.env
+
+# Vector store (regenerate with: uv run build_vector_store.py)
+mcp-server/vector_store/
+
+# Database files
+*.db
+*.sqlite3
+conversations.db
