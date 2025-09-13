@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/devhammad0-openai-study-mode-clone-badge.png)](https://mseep.ai/app/devhammad0-openai-study-mode-clone)
+
 # OpenAI Study Mode Clone
 
 > An intelligent AI tutoring system that uses Socratic teaching methods to guide students through personalized learning experiences.
