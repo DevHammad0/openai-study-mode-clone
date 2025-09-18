@@ -6,8 +6,9 @@ from langchain_chroma import Chroma
 from pydantic import SecretStr
 from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_community.tools import DuckDuckGoSearchRun
 from chromadb.config import Settings
+
+from utils import DuckDuckGoSearcher, WebContentFetcher
 
 
 
@@ -27,9 +28,19 @@ mcp = FastMCP(
 )
 
 # 1. Load vector store once at server start
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=SecretStr(GEMINI_API_KEY))
-vector_store = Chroma(persist_directory="vector_store", embedding_function=embeddings, client_settings=Settings(anonymized_telemetry=False))
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/gemini-embedding-001", 
+    google_api_key=SecretStr(GEMINI_API_KEY)
+)
 
+# point to shared persistent directory
+PERSIST_DIR = os.path.join("..", "vector_store")
+
+vector_store = Chroma(
+    persist_directory=PERSIST_DIR,
+    embedding_function=embeddings,
+    client_settings=Settings(anonymized_telemetry=False)
+)
 
 @mcp.tool(
     name="doc_search_tool", 
@@ -69,8 +80,9 @@ def doc_search_tool(query: str) -> str:
         return "Error: Unable to search documents at this time"
     
 
-# Initialize DuckDuckGoSearchRun with better configuration
-search = DuckDuckGoSearchRun()
+
+searcher = DuckDuckGoSearcher()
+fetcher = WebContentFetcher()
 
 @mcp.tool(
     name="web_search_tool", 
@@ -78,14 +90,20 @@ search = DuckDuckGoSearchRun()
     )
 async def web_search_tool(query: str) -> str:
     """
-       Search the web using DuckDuckGo and return the top result as text.
+       Search DuckDuckGo for the query and return parsed text from the top result.
+
+    Args:
+        query (str): The user's search query.
+
+    Returns:
+        str: Parsed webpage text from the first result, or an error message.
     """
     logging.info(f"web_search_tool called with query: {query}")
 
     try:
-        result = await search.ainvoke(query)
-        logging.info(f"web_search_tool result: {result}")
-        return result
+        results = await searcher.search(query, 1)
+        url = results[0].link
+        return await fetcher.fetch_and_parse(url)
     except Exception as e:
         logging.error(f"Error in web_search_tool: {str(e)}")
         return "Error: Unable to search web at this time"

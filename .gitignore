@@ -13,8 +13,15 @@ wheels/
 
 # Vector store (regenerate with: uv run build_vector_store.py)
 mcp-server/vector_store/
+vector_store
 
 # Database files
 *.db
 *.sqlite3
 conversations.db
+
+
+
+knowledge-base/
+build_vector_store
+

@@ -13,13 +13,13 @@ This project implements an AI-powered study assistant that follows Socratic teac
 
 ### Key Features
 
-- **🧠 Socratic Teaching**: Guides learning through questions rather than direct answers
-- **📚 Document Knowledge Base**: Vector-based search through educational materials
-- **🌐 Web Search Integration**: Real-time information retrieval via DuckDuckGo
-- **🎯 Source Control**: Specify whether to use knowledge base only, web search, or both
-- **💬 Interactive Sessions**: Persistent conversation history and context
-- **🔌 MCP Architecture**: Modular design using Model Context Protocol
-- **⚡ Google Gemini Powered**: Advanced language understanding and generation
+- **Socratic Teaching Method**: Guides learning through questions rather than providing direct answers
+- **Document Knowledge Base**: Vector-based semantic search through uploaded materials
+- **Web Search Integration**: Real-time information retrieval for current topics
+- **Source Control**: Specify document-only or web search for targeted responses
+- **Interactive Web Interface**: Drag-and-drop file upload with real-time tool visualization
+- **MCP Architecture**: Modular design using Model Context Protocol
+- **Google Gemini Powered**: Advanced language understanding and embeddings
 
 ## 🏗️ Architecture
 
@@ -27,28 +27,30 @@ The system consists of two main components:
 
 ```
 openai-study-mode-clone/
-├── agent-core/          # Main tutoring agent (OpenAI Agents SDK)
-│   ├── main.py         # Agent runner and session management
+├── frontend/           # Interactive web interface (Chainlit + OpenAI Agents)
+│   ├── chainlit_app.py # Main web application with AI agent
 │   └── pyproject.toml  # Dependencies and configuration
 └── mcp-server/         # Knowledge and search server (FastMCP)
     ├── server.py       # MCP server with tools and prompts
-    ├── build_vector_store.py  # Vector database builder
-    └── knowledge-base/ # Educational document storage
+    ├── utils.py        # Web search and content fetching utilities
+    └── pyproject.toml  # Dependencies and configuration
 ```
 
 ### Component Details
 
-**Agent Core**
-- Built with OpenAI Agents SDK
-- Implements Socratic teaching methodology
-- Manages conversation sessions and context
-- Connects to MCP server for knowledge retrieval
+**Frontend (Web Interface)**
+- Built with Chainlit + OpenAI Agents SDK
+- Interactive web application with AI tutoring agent
+- Document upload with drag-and-drop support (`.txt` and `.md` files)
+- Real-time tool call visualization and session persistence
+- Automatic vector store management
 
 **MCP Server**
 - FastMCP-based server providing tools and prompts
-- Vector search using ChromaDB + Google Gemini embeddings
-- DuckDuckGo web search integration
-- System prompt management for study mode
+- Connects to shared vector store for document search
+- DuckDuckGo web search integration with rate limiting
+- System prompt management for Socratic teaching mode
+- Stateless design - no local document storage
 
 ## 🚀 Quick Start
 
@@ -74,27 +76,23 @@ openai-study-mode-clone/
    # Create .env file
    echo "GEMINI_API_KEY=your_gemini_api_key_here" > .env
    
-   # Build vector store (required first time)
-   uv run build_vector_store.py
-   
    # Start MCP server
    uv run server.py
    ```
-   
-   > ⚠️ **Important**: The vector store is not included in the repository. You must run `build_vector_store.py` before starting the server for the first time.
 
-3. **Set up Agent Core** (in a new terminal):
+3. **Set up Frontend** (in a new terminal):
    ```bash
-   cd agent-core
+   cd frontend
    uv sync
    
    # Create .env file
    echo "GEMINI_API_KEY=your_gemini_api_key_here" > .env
-   echo "MCP_SERVER_URL=http://localhost:8000" >> .env
+   echo "MCP_SERVER_URL=http://localhost:8000/mcp" >> .env
    
-   # Run the agent
-   uv run main.py
+   # Run the web application
+   uv run chainlit_app.py
    ```
+   Access at `http://localhost:8001`
 
 ### Getting Your Google Gemini API Key
 
@@ -104,89 +102,52 @@ openai-study-mode-clone/
 
 ## 💡 Usage
 
-Once both components are running:
+1. **Access the application**: Open `http://localhost:8001` in your browser
+2. **Upload documents**: Drag and drop `.txt` or `.md` files to add to knowledge base
+3. **Start learning**: The AI tutor will introduce itself and ask about your learning level
+4. **Interactive sessions**: Ask questions and receive guided responses
+5. **Real-time feedback**: Watch tool calls and document searches in real-time
 
-1. **Start a session**: The agent will greet you and ask about your learning level
-2. **Ask questions**: Pose any topic you want to study
-3. **Interactive learning**: The agent will guide you with questions and hints
-4. **Specify sources**: Use "answer only from knowledge base" for document-based responses
-5. **Web search**: Request current information when needed
-6. **Exit**: Type `exit` or `quit` to end the session
+### Source Control
 
-### 📸 Demo Screenshots
+Control which information sources the agent uses:
 
-Here are real interactions showing the AI tutor in action:
-
-#### 1. Interactive Learning Session
-![Demo 1 - Learning Session](images/demo-1.png)
-*Socratic teaching in action - guiding through questions rather than direct answers*
-
-#### 2. Knowledge Base Search
-![Demo 2 - Knowledge Search](images/demo-2.png)
-*Using "answer only from knowledge base" to search uploaded documents*
-
-#### 3. Web Search in Action
-![Demo 3 - Web Search](images/demo-3.png)
-*Agent searching the web for current information and real-time data*
-
-
-
-
-
-
-
-### Controlling Information Sources
-
-You can explicitly control which information sources the agent uses for your queries:
-
-**📚 Knowledge Base Only:**
+**Document-Only Responses:**
 ```
-"Explain prompt engineering, answer only from knowledge base"
-
+"Explain prompt engineering, answer only from document"
 ```
 
-**🌐 Web Search Priority:**
+**Web Search for Current Information:**
 ```
 "What are the latest developments in AI?"
-"Find current news about quantum computing"
 ```
 
-**🔄 Built-in/Mixed Sources (Default):**
+**Mixed Sources (Default):**
 ```
 "Help me understand machine learning"
-"Explain photosynthesis step by step"
-"How do neural networks work?"
 ```
 
-> **💡 Pro Tip**: Always explicitly specify "answer only from knowledge base" when you want the agent to search your uploaded documents. This ensures the response comes exclusively from your curated materials.
+> **Note**: Use "answer only from document" to restrict responses only from uploaded files only.
 
 ## 📚 Knowledge Base
 
-The system includes educational documents in the `mcp-server/knowledge-base/` directory:
+The system uses a shared vector store that's managed entirely through the frontend interface.
 
-- **Context Engineering Tutorial**: Guide for AI agent context engineering
-- **Prompt Engineering Tutorial**: Comprehensive prompt engineering guide
+### Adding Documents
 
-### Adding New Documents
-
-1. Create a `.txt` file in `mcp-server/knowledge-base/`
-2. Add your educational content
-3. Rebuild the vector store:
-   ```bash
-   cd mcp-server
-   uv run build_vector_store.py
-   ```
-4. Restart the MCP server
+**Web Interface:**
+- Drag and drop `.txt` or `.md` files into the Chainlit web interface
+- Documents are automatically processed and added to the shared vector store
+- The MCP server will immediately have access to new documents
+- No manual rebuilding or server restart required
 
 ## 🚨 Troubleshooting
 
 ### Common Issues
 
 **"No such file or directory: vector_store"**
-```bash
-cd mcp-server
-uv run build_vector_store.py
-```
+- The vector store is created automatically when you upload your first document
+- Simply upload a `.txt` or `.md` file through the web interface
 
 **"GEMINI_API_KEY is not set"**
 - Ensure your `.env` file exists in the correct directory
@@ -196,23 +157,13 @@ uv run build_vector_store.py
 - Ensure MCP server is running on `http://localhost:8000`
 - Check that both components have the correct environment variables
 
-**Vector store build fails**
-- Verify internet connection (needed for Gemini API)
-- Check that `knowledge-base/` directory contains `.txt` files
+**Document upload fails**
+- Verify internet connection (needed for Gemini API embeddings)
 - Ensure sufficient disk space for ChromaDB
 - **Check API quota limits** if using Gemini free tier (visit [Google AI Studio](https://aistudio.google.com/apikey) to check usage)
+- Only `.txt` and `.md` files are supported
 
 ## 🛠️ Configuration
-
-### Session Persistence
-
-By default, conversations are stored in memory. For persistent sessions:
-
-1. Edit `agent-core/main.py`
-2. Uncomment line 32:
-   ```python
-   session = SQLiteSession("session_1", "conversations.db")
-   ```
 
 ### MCP Server Settings
 
@@ -227,17 +178,17 @@ By default, conversations are stored in memory. For persistent sessions:
 
 ```
 openai-study-mode-clone/
-├── agent-core/
-│   ├── main.py                 # Main agent runner
+├── frontend/
+│   ├── chainlit_app.py         # Main web application
+│   ├── public/                 # Static assets (logos, themes)
 │   ├── pyproject.toml          # Python dependencies
 │   └── README.md               # Component documentation
 ├── mcp-server/
 │   ├── server.py               # FastMCP server
-│   ├── build_vector_store.py   # Vector database builder
-│   ├── knowledge-base/         # Document storage
-│   ├── vector_store/           # ChromaDB files (auto-generated)
+│   ├── utils.py                # Web search utilities
 │   ├── pyproject.toml          # Python dependencies
 │   └── README.md               # Component documentation
+├── vector_store/               # ChromaDB files (auto-generated)
 └── README.md                   # This file
 ```
 
@@ -253,3 +204,5 @@ openai-study-mode-clone/
 ---
 
 **Built with ❤️ for better learning experiences**
+
+Connect with me: [LinkedIn](https://linkedin.com/in/devhammad0/)

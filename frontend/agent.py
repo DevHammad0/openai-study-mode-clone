@@ -26,7 +26,8 @@ client = AsyncOpenAI(
 
 # Create a session instance with a session ID
 # In-memory database (lost when process ends)
-session = SQLiteSession("session_1")
+session: SQLiteSession = SQLiteSession("session_1")
+
 
 ## Persistent file-based database
 # session = SQLiteSession("session_1", "conversations.db")
@@ -55,6 +56,8 @@ async def run_agent(mcp_server: MCPServer, instructions: str, session: SQLiteSes
                 break
             result = await Runner.run(agent, user_input,session= session)
             print(f"\n\n[AGENT]: {result.final_output}")
+            
+            # print(f"\n\n[HISTORY]: {result.to_input_list()}")
         
 
 
