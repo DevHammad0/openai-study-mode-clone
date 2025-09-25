@@ -1,0 +1,18 @@
+[project]
+name = "mcp-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp[cli]>=1.13.1",
+    "chromadb>=1.0.20",
+    "langchain>=0.3.27",
+    "langchain-chroma>=0.2.5",
+    "langchain-community>=0.3.29",
+    "langchain-google-genai>=2.1.10",
+    "numpy>=2.3.3",
+    "python-dotenv>=1.1.1",
+    "httpx>=0.24.0",
+    "beautifulsoup4>=4.12.0",
+]

@@ -1,0 +1,53 @@
+# Development overrides for docker-compose.yml
+version: '3.8'
+
+services:
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development
+    volumes:
+      # Mount source code for hot reload
+      - ./mcp-server:/app:cached
+      - vector_store:/vector_store
+      - ./mcp-server/.env:/app/.env:ro
+      # Preserve node_modules and venv
+      - /app/.venv
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - WATCHFILES_FORCE_POLLING=1
+    command: ["uv", "run", "python", "server.py"]
+    # Disable healthcheck in dev for faster startup
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 1s
+      retries: 1
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend:/app:cached
+      - vector_store:/vector_store
+      - ./frontend/.env:/app/.env:ro
+      # Preserve node_modules and venv
+      - /app/.venv
+      - /app/.chainlit
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - MCP_SERVER_URL=http://mcp-server:8000/mcp
+      - CHAINLIT_HOST=0.0.0.0
+      - CHAINLIT_PORT=8001
+      - CHAINLIT_WATCH=true
+    command: ["uv", "run", "python", "-m", "chainlit", "run", "chainlit_app.py", "--port", "8001", "--host", "0.0.0.0", "-w"]
+    # Disable healthcheck in dev for faster startup
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 1s
+      retries: 1

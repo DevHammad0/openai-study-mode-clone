@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: study-mode-mcp-server
+    ports:
+      - "8000:8000"
+    volumes:
+      - vector_store:/vector_store
+      - ./mcp-server/.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - study-mode-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: study-mode-frontend
+    ports:
+      - "8001:8001"
+    volumes:
+      - vector_store:/vector_store
+      - ./frontend/.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MCP_SERVER_URL=http://mcp-server:8000/mcp
+    depends_on:
+      - mcp-server
+    networks:
+      - study-mode-network
+    restart: unless-stopped
+
+volumes:
+  vector_store:
+    driver: local
+
+networks:
+  study-mode-network:
+    driver: bridge
